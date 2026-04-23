@@ -13,7 +13,7 @@ import sys
 
 # Dataset generate karo agar exist nahi karta
 if not os.path.exists('dataset.csv'):
-    print("📊 Dataset nahi mila, generate kar rahe hain...")
+    print("Dataset nahi mila, generate kar rahe hain...")
     # Import and run generator
     import importlib.util
     spec = importlib.util.spec_from_file_location("gen", "generate_dataset.py")
@@ -133,7 +133,7 @@ def train_model():
         print(f"   {feat:20s}: {bar} {imp:.4f}")
     
     # Model aur Scaler save karo
-    print("\n💾 Step 8: Model save kar rahe hain...")
+    print("\nStep 8: Model save kar rahe hain...")
     with open('model.pkl', 'wb') as f:
         pickle.dump(model, f)
     with open('scaler.pkl', 'wb') as f:
@@ -141,9 +141,9 @@ def train_model():
     with open('features.pkl', 'wb') as f:
         pickle.dump(feature_columns, f)
     
-    print("   ✅ model.pkl saved")
-    print("   ✅ scaler.pkl saved")
-    print("   ✅ features.pkl saved")
+    print("model.pkl saved")
+    print("scaler.pkl saved")
+    print("features.pkl saved")
     
     return model, scaler, feature_columns, accuracy
 
