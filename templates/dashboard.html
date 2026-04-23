@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPI Guard Pro+ | Security Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --bg: #030712;
+            --surface: #111827;
+            --surface-accent: #1f2937;
+            --border: #374151;
+            --text: #f9fafb;
+            --text-dim: #9ca3af;
+            --accent: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --glass: rgba(17, 24, 39, 0.7);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 100% 0%, rgba(99, 102, 241, 0.05) 0%, transparent 50%);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 4rem;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo { font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; }
+        .logo span { background: linear-gradient(to right, #6366f1, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 3rem 2rem; }
+
+        .header { margin-bottom: 3rem; }
+        .header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.5rem; }
+        .header p { color: var(--text-dim); font-size: 1.125rem; }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover { transform: translateY(-4px); }
+
+        .stat-label { font-size: 0.875rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; display: block; }
+        .stat-value { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 700; color: var(--text); }
+
+        /* Charts Section */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .chart-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 2rem;
+        }
+
+        .chart-title { font-size: 1.125rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-dim); }
+
+        /* Table */
+        .table-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            overflow: hidden;
+        }
+
+        .table-header { padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .table-title { font-size: 1.125rem; font-weight: 700; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 1rem 2rem; font-size: 0.75rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; background: rgba(255,255,255,0.02); }
+        td { padding: 1.25rem 2rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        tr:last-child td { border-bottom: none; }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge.safe { background: rgba(16, 185, 129, 0.1); color: var(--accent); }
+        .badge.suspicious { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .badge.fraud { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+        .view-ss-btn {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .view-ss-btn:hover { text-decoration: underline; }
+
+        .empty-state { padding: 5rem; text-align: center; color: var(--text-dim); }
+
+        @media (max-width: 900px) {
+            .charts-grid { grid-template-columns: 1fr; }
+            nav { padding: 1rem 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L3 7V12C3 17.41 6.84 22.38 12 24C17.16 22.38 21 17.41 21 12V7L12 2Z" fill="#6366f1"/>
+            </svg>
+            <span>UPI Guard Pro+</span>
+        </div>
+        <div class="nav-links">
+            <a href="/">New Audit</a>
+            <a href="/dashboard" style="color:var(--primary);">Analytics</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>Security Dashboard</h1>
+            <p>Intelligence overview and threat analysis history.</p>
+        </div>
+
+        {% if stats.total == 0 %}
+        <div class="table-card">
+            <div class="empty-state">
+                <div style="font-size:3rem; margin-bottom:1rem;">🛰️</div>
+                <h3>No Analytics Data Available</h3>
+                <p style="margin-top:0.5rem; margin-bottom:2rem;">Run your first security audit to populate the dashboard.</p>
+                <a href="/" style="background:var(--primary); color:white; padding:0.75rem 1.5rem; border-radius:0.5rem; text-decoration:none; font-weight:700;">Initiate Audit</a>
+            </div>
+        </div>
+        {% else %}
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">Total Audits</span>
+                <div class="stat-value">{{ stats.total }}</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Fraud Blocked</span>
+                <div class="stat-value" style="color:var(--danger);">{{ stats.fraud }}</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Threat Velocity</span>
+                <div class="stat-value" style="color:var(--warning);">{{ stats.fraud_rate }}%</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Secure Ratio</span>
+                <div class="stat-value" style="color:var(--accent);">{{ "%.1f"|format(100 - stats.fraud_rate) }}%</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">Threat Distribution</div>
+                <canvas id="threatChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Audit Activity Log</div>
+                <canvas id="activityChart"></canvas>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-header">
+                <div class="table-title">Recent Intelligence Reports</div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Amount</th>
+                        <th>Risk Score</th>
+                        <th>Verdict</th>
+                        <th>Evidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for txn in history|reverse %}
+                    <tr>
+                        <td style="color:var(--text-dim); font-size:0.8rem;">{{ txn.timestamp }}</td>
+                        <td style="font-weight:600;">₹{{ "%.2f"|format(txn.amount) }}</td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:0.5rem;">
+                                <div style="width:40px; height:4px; background:var(--surface-accent); border-radius:2px;">
+                                    <div style="width:{{ txn.risk_score }}%; height:100%; background:{% if txn.risk_score > 60 %}var(--danger){% elif txn.risk_score > 30 %}var(--warning){% else %}var(--accent){% endif %}; border-radius:2px;"></div>
+                                </div>
+                                <span style="font-family:'JetBrains Mono'; font-size:0.8rem;">{{ txn.risk_score }}%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge {{ txn.verdict.lower() }}">{{ txn.verdict }}</span>
+                        </td>
+                        <td>
+                            {% if txn.screenshot %}
+                            <a href="{{ url_for('static', filename='uploads/' + txn.screenshot) }}" target="_blank" class="view-ss-btn">
+                                🖼️ View Screenshot
+                            </a>
+                            {% else %}
+                            <span style="color:var(--text-dim); font-size:0.8rem;">N/A</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        {% if stats.total > 0 %}
+        // Threat Distribution Chart
+        const threatCtx = document.getElementById('threatChart').getContext('2d');
+        new Chart(threatCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Secure', 'Suspicious', 'Fraud'],
+                datasets: [{
+                    data: [{{ stats.safe }}, {{ stats.suspicious }}, {{ stats.fraud }}],
+                    backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '70%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#9ca3af', usePointStyle: true, padding: 20 } }
+                }
+            }
+        });
+
+        // Activity Chart (Simplified)
+        const activityCtx = document.getElementById('activityChart').getContext('2d');
+        new Chart(activityCtx, {
+            type: 'line',
+            data: {
+                labels: [{% for txn in history %}'{{ txn.id }}',{% endfor %}],
+                datasets: [{
+                    label: 'Risk Score',
+                    data: [{% for txn in history %}{{ txn.risk_score }},{% endfor %}],
+                    borderColor: '#6366f1',
+                    tension: 0.4,
+                    fill: true,
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    pointRadius: 4,
+                    pointBackgroundColor: '#6366f1'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } },
+                    x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+        {% endif %}
+    </script>
+</body>
+</html>

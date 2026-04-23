@@ -1,140 +1,124 @@
-# UPI Guard Pro+
- 
-A fraud detection web app built on top of a Random Forest classifier that analyzes UPI transactions and flags them as **Safe**, **Suspicious**, or **Fraud** — with an explanation for every decision.
- 
-The idea came from a simple frustration: UPI fraud is increasingly common in India, but most people have no way to quickly check whether a transaction looks legitimate before acting on it. This project is a step toward making that kind of check accessible.
- 
+# 🛡️ UPI Guard Pro+ — AI-Based UPI Fraud Detection System
+
+## 📌 Project Overview
+UPI Guard Pro+ ek AI-powered real-time fraud detection system hai jo UPI transactions ko 3-layer security se analyze karta hai.
+
 ---
- 
-## What it does
- 
-You enter details about a transaction — amount, time, location, device, type, and how many transactions happened in the last 24 hours — and the system runs it through three layers of analysis:
- 
-1. **ML Model** — A Random Forest trained on transaction data that outputs a fraud probability
-2. **Rule Engine** — Hand-crafted rules covering known fraud signals (late-night transfers, foreign locations, unusually high amounts)
-3. **Pattern Check** — Flags accounts with abnormally high transaction frequency
-These three scores are combined into a single **Risk Score (0–100)**, and a final verdict is returned with the specific reasons behind it.
- 
-You can also upload a screenshot of the payment for audit purposes, and if a transaction is marked as fraud, an email alert fires automatically.
- 
----
- 
-## Risk Score Breakdown
- 
-| Score | Verdict | What it means |
-|-------|---------|---------------|
-| 0 – 30 | ✅ Safe | Transaction looks normal |
-| 31 – 60 | ⚠️ Suspicious | Some unusual patterns detected |
-| 61 – 100 | 🚨 Fraud | High risk — likely fraudulent |
- 
----
- 
-## Tech Stack
- 
-- **Flask** — Backend and routing
-- **Scikit-learn** — Random Forest model
-- **Pandas / NumPy** — Data handling and preprocessing
-- **Chart.js** — Dashboard visualizations
-- **SMTP (Gmail)** — Fraud alert emails
----
- 
-## Project Structure
- 
-```
-upi_guard_pro/
-├── app.py                 # Flask server, routes, email alerts
-├── model.py               # Model training, risk scoring, explainability
-├── generate_dataset.py    # Synthetic dataset generator
-├── requirements.txt       # Python dependencies
-├── dataset.csv            # Generated training data
-├── model.pkl              # Saved trained model
-├── scaler.pkl             # StandardScaler for feature normalization
-├── features.pkl           # Feature column names
-└── templates/
-    ├── index.html         # Transaction input form
-    ├── result.html        # Prediction result page
-    └── dashboard.html     # Live analytics dashboard
-```
- 
----
- 
-## Getting Started
- 
-**1. Clone the repo**
+
+## 🚀 Quick Start (Step by Step)
+
+### Step 1: Project folder mein jao
 ```bash
-git clone https://github.com/yourusername/upi-guard-pro.git
-cd upi-guard-pro
+cd upi_guard_pro
 ```
- 
-**2. Install dependencies**
+
+### Step 2: Libraries install karo
 ```bash
 pip install -r requirements.txt
 ```
- 
-**3. Generate the dataset**
+
+### Step 3: Dataset generate karo
 ```bash
 python generate_dataset.py
 ```
- 
-**4. Train the model**
+
+### Step 4: ML Model train karo
 ```bash
 python model.py
 ```
-This saves `model.pkl`, `scaler.pkl`, and `features.pkl` to disk.
- 
-**5. Start the server**
+**Expected Output:** Accuracy ~100% (simulated data pe), model.pkl save hoga
+
+### Step 5: Flask server start karo
 ```bash
 python app.py
 ```
- 
-**6. Open in browser**
-```
-Main app  →  http://localhost:5000
-Dashboard →  http://localhost:5000/dashboard
-```
- 
+
+### Step 6: Browser mein open karo
+- Home: http://localhost:5000
+- Dashboard: http://localhost:5000/dashboard
+
 ---
- 
-## Email Alerts (Optional)
- 
-When a transaction is flagged as fraud, the app can send an automatic email alert. To enable this, set these environment variables before starting the server:
- 
+
+## 📁 Project Structure
+```
+upi_guard_pro/
+├── app.py              ← Flask web application (main server)
+├── model.py            ← ML model + risk scoring + explainable AI
+├── generate_dataset.py ← Dataset creation
+├── requirements.txt    ← Python dependencies
+├── dataset.csv         ← Generated dataset (after step 3)
+├── model.pkl           ← Trained model (after step 4)
+├── scaler.pkl          ← Feature scaler (after step 4)
+├── features.pkl        ← Feature names (after step 4)
+└── templates/
+    ├── index.html      ← Home page (transaction form)
+    ├── result.html     ← Prediction result page
+    └── dashboard.html  ← Analytics dashboard
+```
+
+---
+
+## 🧠 How It Works
+
+### Layer 1: ML Model (Random Forest)
+- 5000 transactions pe trained
+- Features: amount, hour, location, device, transaction type, frequency
+- Output: Fraud probability (0-100%)
+
+### Layer 2: Rule-Based Engine
+- Amount > ₹5000 → High risk
+- Night time (10pm-4am) → Suspicious
+- Foreign location → High risk
+- 10+ transactions/day → Suspicious
+
+### Layer 3: Risk Score (0-100)
+- 0-30: SAFE ✅
+- 31-60: SUSPICIOUS ⚠️
+- 61-100: FRAUD 🚨
+
+---
+
+## 📧 Email Alerts Setup (Optional)
+
+Email alerts ke liye environment variables set karo:
 ```bash
 # Windows
-set EMAIL_USER=your@gmail.com
-set EMAIL_PASS=your_app_password
-set ALERT_EMAIL=receiver@gmail.com
- 
-# Mac / Linux
-export EMAIL_USER=your@gmail.com
-export EMAIL_PASS=your_app_password
-export ALERT_EMAIL=receiver@gmail.com
+set EMAIL_USER=your-gmail@gmail.com
+set EMAIL_PASS=your-app-password
+set ALERT_EMAIL=alert-receiver@gmail.com
+
+# Mac/Linux
+export EMAIL_USER=your-gmail@gmail.com
+export EMAIL_PASS=your-app-password
+export ALERT_EMAIL=alert-receiver@gmail.com
 ```
- 
-Use a Gmail App Password, not your regular account password. You can generate one under **Google Account → Security → 2-Step Verification → App Passwords**.
- 
+
+**Note:** Gmail App Password use karo (not your regular password)
+Settings → Security → 2-Step Verification → App Passwords
+
 ---
- 
-## Features Used by the Model
- 
-| Feature | Description |
-|---------|-------------|
-| `amount` | Transaction amount in INR |
-| `hour` | Hour of the day (0–23) |
-| `location_code` | 0 = same city, 1 = different city, 2 = foreign |
-| `device_type` | 0 = mobile, 1 = tablet, 2 = desktop |
-| `transaction_type` | 0 = payment, 1 = transfer, 2 = withdrawal |
-| `prev_txn_count` | Number of transactions in the last 24 hours |
- 
+
+## 🛠️ Tech Stack
+- **Python 3.8+**
+- **Flask** — Web framework
+- **Scikit-learn** — Machine Learning (Random Forest)
+- **Pandas + NumPy** — Data processing
+- **HTML/CSS/JS** — Frontend
+- **Chart.js** — Dashboard charts
+
 ---
- 
-## Planned Improvements
- 
-- OCR integration to auto-extract transaction details from uploaded screenshots
-- Persistent storage with a proper database instead of in-memory history
-- SMS alerts via Twilio
-- Integration with real UPI transaction APIs
+
+## 📊 Dataset Features
+| Feature | Description | Values |
+|---------|-------------|--------|
+| amount | Transaction amount | ₹10 - ₹50,000 |
+| hour | Time of transaction | 0-23 |
+| location_code | Location type | 0=Same, 1=Diff City, 2=Foreign |
+| device_type | Device used | 0=Mobile, 1=Tablet, 2=Desktop |
+| transaction_type | Type | 0=Payment, 1=Transfer, 2=Withdrawal |
+| prev_txn_count | Transactions in last 24h | 0-20 |
+| fraud | Target (1=Fraud) | 0 or 1 |
+
 ---
- 
-## License
- 
+
+*Made with ❤️ for Final Year Project*

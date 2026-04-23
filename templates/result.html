@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPI Guard Pro+ | Security Audit Result</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --bg: #030712;
+            --surface: #111827;
+            --surface-accent: #1f2937;
+            --border: #374151;
+            --text: #f9fafb;
+            --text-dim: #9ca3af;
+            --accent: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --glass: rgba(17, 24, 39, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 100%);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 4rem;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo span {
+            background: linear-gradient(to right, #6366f1, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* Verdict Header */
+        .verdict-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-pill.fraud {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .status-pill.suspicious {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .status-pill.safe {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .verdict-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -0.025em;
+        }
+
+        /* Main Result Card */
+        .result-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+        }
+
+        .result-main {
+            padding: 2.5rem;
+            border-right: 1px solid var(--border);
+        }
+
+        .result-sidebar {
+            padding: 2.5rem;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        /* Risk Meter */
+        .risk-meter-container {
+            margin-bottom: 2.5rem;
+        }
+
+        .risk-meter-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 0.75rem;
+        }
+
+        .risk-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .risk-bar-bg {
+            height: 8px;
+            background: var(--surface-accent);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .risk-bar-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Data Grid */
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .data-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .data-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            font-weight: 500;
+        }
+
+        .data-value {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        /* Explanation */
+        .reason-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .reason-item {
+            padding: 1rem;
+            background: var(--surface-accent);
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            border-left: 3px solid var(--primary);
+        }
+
+        /* Screenshot */
+        .screenshot-container {
+            margin-top: 2rem;
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            overflow: hidden;
+            background: black;
+        }
+
+        .screenshot-container img {
+            width: 100%;
+            display: block;
+            object-fit: contain;
+            max-height: 400px;
+        }
+
+        .screenshot-empty {
+            padding: 3rem;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.875rem;
+            border: 1px dashed var(--border);
+            border-radius: 1rem;
+        }
+
+        /* Actions */
+        .actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            text-decoration: none;
+            font-weight: 700;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4f46e5;
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--surface-accent);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        @media (max-width: 900px) {
+            .result-card {
+                grid-template-columns: 1fr;
+            }
+
+            .result-main {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .verdict-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L3 7V12C3 17.41 6.84 22.38 12 24C17.16 22.38 21 17.41 21 12V7L12 2Z" fill="#6366f1" />
+            </svg>
+            <span>UPI Guard Pro+</span>
+        </div>
+        <div class="nav-links">
+            <a href="/">New Analysis</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% if error %}
+        <div style="text-align:center; padding:4rem;">
+            <div style="font-size:3rem; margin-bottom:1rem;">⚠️</div>
+            <h2 style="margin-bottom:1rem;">Analysis Failed</h2>
+            <p style="color:var(--text-dim); margin-bottom:2rem;">{{ error }}</p>
+            <a href="/" class="btn btn-primary" style="display:inline-block; width:auto; padding:1rem 2rem;">Return to
+                Terminal</a>
+        </div>
+        {% else %}
+
+        <div class="verdict-header">
+            <div class="status-pill {{ result.final_verdict.lower() }}">
+                {% if result.final_verdict == 'FRAUD' %}🚨 High Risk Detected
+                {% elif result.final_verdict == 'SUSPICIOUS' %}⚠️ Warning: Unusual Patterns
+                {% else %}✅ Transaction Secure{% endif %}
+            </div>
+            <h1 class="verdict-title">
+                {% if result.final_verdict == 'FRAUD' %}Blocked for Security
+                {% elif result.final_verdict == 'SUSPICIOUS' %}Under Review
+                {% else %}Cleared Successfully{% endif %}
+            </h1>
+            <p style="color:var(--text-dim); font-size:1.125rem;">Our AI security engine has completed the multi-layer
+                audit.</p>
+        </div>
+
+        <div class="result-card">
+            <div class="result-main">
+                <span class="section-label">Risk Analytics</span>
+
+                <div class="risk-meter-container">
+                    <div class="risk-meter-top">
+                        <span style="font-size: 0.875rem; color: var(--text-dim);">Threat Level Index</span>
+                        <div class="risk-value"
+                            style="color: {% if result.risk_score > 60 %}var(--danger){% elif result.risk_score > 30 %}var(--warning){% else %}var(--accent){% endif %};">
+                            {{ result.risk_score }}%
+                        </div>
+                    </div>
+                    <div class="risk-bar-bg">
+                        <div class="risk-bar-fill" id="riskFill"
+                            style="background: {% if result.risk_score > 60 %}var(--danger){% elif result.risk_score > 30 %}var(--warning){% else %}var(--accent){% endif %};">
+                        </div>
+                    </div>
+                </div>
+
+                <span class="section-label">Audit Intelligence</span>
+                <div class="reason-list">
+                    {% for reason in result.explanation %}
+                    <div class="reason-item">{{ reason }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="data-grid">
+                    <div class="data-item">
+                        <span class="data-label">Transaction ID</span>
+                        <span class="data-value">#{{ range(100000, 999999)|random }}</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">Amount</span>
+                        <span class="data-value">₹{{ "%.2f"|format(transaction.amount|float) }}</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">Probability</span>
+                        <span class="data-value">{{ result.fraud_probability }}%</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">Result Type</span>
+                        <span class="data-value">{{ result.final_verdict }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-sidebar">
+                <span class="section-label">Payment Evidence</span>
+                {% if screenshot %}
+                <div class="screenshot-container">
+                    <img src="{{ url_for('static', filename='uploads/' + screenshot) }}" alt="Payment Screenshot">
+                </div>
+                {% if ocr_fields_used %}
+                <div
+                    style="margin-top:1rem; padding:1rem; background:rgba(99,102,241,0.08); border-radius:0.75rem; border:1px solid rgba(99,102,241,0.2);">
+                    <p style="font-size:0.75rem; color:#6366f1; font-weight:600; margin-bottom:0.5rem;">🔍 OCR
+                        Auto-Detected:</p>
+                    {% for field in ocr_fields_used %}
+                    <p style="font-size:0.72rem; color:var(--text-dim); margin:0.2rem 0;">✅ {{ field }}</p>
+                    {% endfor %}
+                </div>
+                {% elif ocr_data and ocr_data.ocr_success %}
+                <p style="font-size:0.72rem; color:var(--text-dim); margin-top:0.75rem; text-align:center;">
+                    ⚠️ OCR chala par transaction data detect nahi hua. Manual values use ki gayi.
+                </p>
+                {% else %}
+                <p style="font-size:0.75rem; color:var(--text-dim); margin-top:0.75rem; text-align:center;">
+                    Screenshot archived in secure storage.
+                </p>
+                {% endif %}
+                {% else %}
+                <div class="screenshot-empty">
+                    <span>No screenshot provided for this audit.</span>
+                </div>
+                {% endif %}
+
+                <div class="actions">
+                    <a href="/" class="btn btn-primary">New Audit</a>
+                    <a href="/dashboard" class="btn btn-secondary">Dashboard</a>
+                </div>
+
+                <div
+                    style="margin-top:2rem; padding:1.5rem; background:rgba(16, 185, 129, 0.05); border-radius:1rem; border:1px solid rgba(16, 185, 129, 0.1);">
+                    <h4 style="color:var(--accent); font-size:0.875rem; margin-bottom:0.5rem;">Security Protocol V4.2
+                    </h4>
+                    <p style="font-size:0.75rem; color:var(--text-dim); line-height:1.4;">This audit is encrypted and
+                        logged for regulatory compliance. Fraudulent attempts are automatically reported.</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        window.addEventListener('load', () => {
+            const fill = document.getElementById('riskFill');
+            if (fill) {
+                setTimeout(() => {
+                    fill.style.width = '{{ result.risk_score if result else 0 }}%';
+                }, 100);
+            }
+        });
+    </script>
+</body>
+
+</html>
