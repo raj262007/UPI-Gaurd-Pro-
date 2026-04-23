@@ -5,8 +5,8 @@ __pycache__/
 # Uploaded screenshots (user data)
 static/uploads/
 
-# Generated files (python model.py se ban jaate hain)
-dataset.csv
-model.pkl
-scaler.pkl
-features.pkl
+# Generated files (Vercel is read-only, so we MUST upload these)
+# dataset.csv
+# model.pkl
+# scaler.pkl
+# features.pkl
