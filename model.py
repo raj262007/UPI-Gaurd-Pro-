@@ -31,19 +31,19 @@ def load_and_preprocess():
     - Scaling se model better learn karta hai
     - Missing values handle karne padte hain
     """
-    print("\n📂 Step 1: Data Load kar rahe hain...")
+    print("Step 1: Data Load kar rahe hain...")
     df = pd.read_csv('dataset.csv')
     print(f"   Shape: {df.shape}")
     
     # Missing values check karo
-    print(f"\n🔍 Step 2: Missing values check kar rahe hain...")
+    print(f"\nStep 2: Missing values check kar rahe hain...")
     missing = df.isnull().sum()
     if missing.sum() == 0:
-        print("   ✅ Koi missing value nahi!")
+        print("   Koi missing value nahi!")
     else:
         print(f"   Missing values:\n{missing}")
         df.fillna(df.median(), inplace=True)
-        print("   ✅ Missing values fill kar diye median se")
+        print("   Missing values fill kar diye median se")
     
     # Features aur Target alag karo
     # X = input features (jo model dekhega)
@@ -54,7 +54,7 @@ def load_and_preprocess():
     X = df[feature_columns]
     y = df['fraud']
     
-    print(f"\n📊 Step 3: Data Distribution:")
+    print(f"\nStep 3: Data Distribution:")
     print(f"   Safe transactions: {(y==0).sum()}")
     print(f"   Fraud transactions: {(y==1).sum()}")
     
@@ -70,7 +70,7 @@ def train_model():
     # Train/Test Split - 80% training, 20% testing
     # Kyun? - Model jo data dekhega, uspe toh accha perform karega hi
     # Isliye unseen data (test set) pe test karte hain
-    print("\n✂️  Step 4: Train/Test Split kar rahe hain (80/20)...")
+    print("\nStep 4: Train/Test Split kar rahe hain (80/20)...")
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y
         # stratify=y ensures fraud/safe ratio same rahe dono mein
@@ -80,15 +80,15 @@ def train_model():
     
     # Feature Scaling - amounts 50000 tak hain, hour 0-23 hai
     # Scaling ensure karta hai ki large values dominate na karein
-    print("\n⚖️  Step 5: Feature Scaling kar rahe hain...")
+    print("\nStep 5: Feature Scaling kar rahe hain...")
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
     # Note: test data pe sirf transform, fit nahi - data leakage avoid karne ke liye
-    print("   ✅ StandardScaler applied")
+    print("   StandardScaler applied")
     
     # Random Forest Model train karo
-    print("\n🌲 Step 6: Random Forest Model train kar rahe hain...")
+    print("\nStep 6: Random Forest Model train kar rahe hain...")
     print("   (Ye thoda time lega...)")
     
     model = RandomForestClassifier(
@@ -100,10 +100,10 @@ def train_model():
     )
     
     model.fit(X_train_scaled, y_train)
-    print("   ✅ Model training complete!")
+    print("   Model training complete!")
     
     # Model Evaluation
-    print("\n📈 Step 7: Model Evaluation...")
+    print("\nStep 7: Model Evaluation...")
     y_pred = model.predict(X_test_scaled)
     y_pred_proba = model.predict_proba(X_test_scaled)[:, 1]
     
@@ -111,8 +111,8 @@ def train_model():
     auc_score = roc_auc_score(y_test, y_pred_proba)
     
     print(f"\n{'='*50}")
-    print(f"   🎯 ACCURACY: {accuracy*100:.2f}%")
-    print(f"   📊 AUC-ROC Score: {auc_score:.4f}")
+    print(f"   ACCURACY: {accuracy*100:.2f}%")
+    print(f"   AUC-ROC Score: {auc_score:.4f}")
     print(f"{'='*50}")
     
     print("\n📋 Detailed Classification Report:")
@@ -125,11 +125,11 @@ def train_model():
     print(f"   Missed:    {cm[1][0]}  |  True Fraud:  {cm[1][1]}")
     
     # Feature Importance - Explainable AI ke liye
-    print("\n🔍 Feature Importance (Explainable AI):")
+    print("\nFeature Importance (Explainable AI):")
     importances = model.feature_importances_
     for feat, imp in sorted(zip(feature_columns, importances), 
                              key=lambda x: -x[1]):
-        bar = "█" * int(imp * 50)
+        bar = "X" * int(imp * 50)
         print(f"   {feat:20s}: {bar} {imp:.4f}")
     
     # Model aur Scaler save karo
@@ -202,9 +202,9 @@ def calculate_risk_score(txn, ml_probability):
     """
     Multi-layer risk scoring system (0-100).
     
-    Score 0-30: Safe ✅
-    Score 31-60: Suspicious ⚠️
-    Score 61-100: Fraud 🚨
+    Score 0-30: Safe
+    Score 31-60: Suspicious
+    Score 61-100: Fraud
     
     3 layers:
     1. ML Model score (60% weight)
@@ -266,23 +266,23 @@ def generate_explanation(txn, risk_score):
     prev_txn = int(txn['prev_txn_count'])
     
     if amount > 10000:
-        reasons.append(f"⚠️ Very high amount ₹{amount:,.0f} detected")
+        reasons.append(f"Very high amount Rupee {amount:,.0f} detected")
     elif amount > 5000:
-        reasons.append(f"⚠️ High amount ₹{amount:,.0f} detected")
+        reasons.append(f"High amount Rupee {amount:,.0f} detected")
     
     if hour >= 23 or hour <= 3:
-        reasons.append(f"🌙 Transaction at unusual hour ({hour}:00 - late night)")
+        reasons.append(f"Transaction at unusual hour ({hour}:00 - late night)")
     
     if location == 2:
-        reasons.append("🌍 Transaction from foreign location")
+        reasons.append("Transaction from foreign location")
     elif location == 1:
-        reasons.append("📍 Transaction from different city")
+        reasons.append("Transaction from different city")
     
     if prev_txn > 10:
-        reasons.append(f"📊 Too many transactions ({prev_txn}) in last 24 hours")
+        reasons.append(f"Too many transactions ({prev_txn}) in last 24 hours")
     
     if not reasons:
-        reasons.append("✅ No suspicious patterns found")
+        reasons.append("No suspicious patterns found")
     
     return reasons
 
@@ -297,13 +297,13 @@ def get_final_verdict(risk_score):
 
 
 if __name__ == "__main__":
-    print("🚀 UPI Guard Pro+ - Model Training Starting...")
+    print("UPI Guard Pro+ - Model Training Starting...")
     print("=" * 60)
     model, scaler, features, accuracy = train_model()
     print("\n" + "=" * 60)
-    print("✅ Training Complete!")
-    print(f"✅ Model Accuracy: {accuracy*100:.2f}%")
-    print("\n🧪 Test prediction kar rahe hain:")
+    print("Training Complete!")
+    print(f"Model Accuracy: {accuracy*100:.2f}%")
+    print("\nTest prediction kar rahe hain:")
     test_txn = {
         'amount': 15000,
         'hour': 2,
